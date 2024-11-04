@@ -1,0 +1,11 @@
+---
+all:
+  children:
+    linux:
+      hosts:
+        Oracle-Cloud:
+          ansible_host: 130.61.249.36
+        kiosk:
+          ansible_host: 192.168.2.24
+        zabbix:
+          ansible_host: 192.168.100.6

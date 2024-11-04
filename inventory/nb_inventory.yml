@@ -1,0 +1,9 @@
+---
+inventory:
+  plugin: NetBoxInventory2
+  options:
+    # nb_url: https://130.61.249.36
+    nb_url: https://127.0.0.1
+    nb_token: b05c5d2f9725729d0df1e3946d83c8408c4d83a5
+    ssl_verify: False
+    flatten_custom_fields: False

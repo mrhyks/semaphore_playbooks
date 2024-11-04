@@ -1,0 +1,8 @@
+---
+- hosts: all
+  tasks:
+    - name: Check connection
+      ping:
+      register: result
+    - debug:
+        var: result
