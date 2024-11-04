@@ -1,0 +1,12 @@
+---
+- hosts: linux
+  become: yes
+  vars_files:
+  - ../vaults/main.yml
+  tasks: 
+    - name: Update apt package list 
+      apt: 
+        update_cache: yes 
+    - name: Upgrade all packages 
+      apt: 
+        upgrade: dist

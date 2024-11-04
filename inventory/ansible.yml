@@ -1,0 +1,131 @@
+---
+all:
+  children:
+    ap:
+      hosts:
+        CAP-lite:
+          ansible_host: 192.168.2.2
+          groups:
+          - mikrotik_routeros
+    cisco:
+      hosts:
+        ME3600X:
+          ansible_host: 172.16.0.10
+          groups:
+          - switch
+      vars:
+        update_cmd: cisco update cmd
+    juniper:
+      hosts:
+        ACX2200:
+          ansible_host: 172.16.0.13
+          groups:
+          - router
+        ACX710:
+          ansible_host: null
+          groups:
+          - router
+        EX3400:
+          ansible_host: null
+          groups:
+          - switch
+        EX3400-2:
+          ansible_host: 172.16.0.12
+          groups:
+          - router
+        MX204:
+          ansible_host: null
+          groups:
+          - router
+        SRX345:
+          ansible_host: 172.16.0.11
+          groups:
+          - router
+      vars:
+        update_cmd: TBD3
+    linux:
+      hosts:
+        Kiosk:
+          ansible_host: 192.168.2.24
+          groups:
+          - server
+        Oracle-Cloud:
+          ansible_host: 130.61.249.36
+          groups:
+          - server
+        Zabbix:
+          ansible_host: 192.168.100.6
+          groups:
+          - server
+      vars:
+        update_cmd: sudo apt update && sudo apt upgrade -y
+    mikrotik_routeros:
+      hosts:
+        CAP-lite:
+          ansible_host: 192.168.2.2
+          groups:
+          - ap
+        HEX:
+          ansible_host: 192.168.100.1
+          groups:
+          - router
+        VBIT-PE1:
+          ansible_host: 192.168.2.1
+          groups:
+          - router
+      vars:
+        update_cmd: /system package update install
+    router:
+      hosts:
+        ACX2200:
+          ansible_host: 172.16.0.13
+          groups:
+          - juniper
+        ACX710:
+          ansible_host: null
+          groups:
+          - juniper
+        EX3400-2:
+          ansible_host: 172.16.0.12
+          groups:
+          - juniper
+        HEX:
+          ansible_host: 192.168.100.1
+          groups:
+          - mikrotik_routeros
+        MX204:
+          ansible_host: null
+          groups:
+          - juniper
+        SRX345:
+          ansible_host: 172.16.0.11
+          groups:
+          - juniper
+        VBIT-PE1:
+          ansible_host: 192.168.2.1
+          groups:
+          - mikrotik_routeros
+    server:
+      hosts:
+        Kiosk:
+          ansible_host: 192.168.2.24
+          groups:
+          - linux
+        Oracle-Cloud:
+          ansible_host: 130.61.249.36
+          groups:
+          - linux
+        Zabbix:
+          ansible_host: 192.168.100.6
+          groups:
+          - linux
+    switch:
+      hosts:
+        EX3400:
+          ansible_host: null
+          groups:
+          - juniper
+        ME3600X:
+          ansible_host: 172.16.0.10
+          groups:
+          - cisco

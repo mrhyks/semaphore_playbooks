@@ -1,0 +1,16 @@
+ap:
+  some_field: N/A
+cisco:
+  update_cmd: cisco update cmd
+juniper:
+  update_cmd: TBD3
+linux:
+  update_cmd: sudo apt update && sudo apt upgrade -y
+mikrotik_routeros:
+  update_cmd: /system package update install
+router:
+  some_field: N/A
+server:
+  some_field: N/A
+switch:
+  some_field: N/A
