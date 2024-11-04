@@ -1,0 +1,18 @@
+---
+all:
+  children:
+    mikrotik_routeros:
+      hosts:
+        HEX:
+          ansible_host: 192.168.100.1
+          groups:
+          - router
+      vars:
+        ansible_connection: ansible.netcommon.network_cli
+        ansible_network_os: community.routeros.routeros
+    router:
+      hosts:
+        HEX:
+          ansible_host: 192.168.100.1
+          groups:
+          - mikrotik_routeros

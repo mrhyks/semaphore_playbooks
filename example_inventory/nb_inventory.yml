@@ -1,0 +1,8 @@
+---
+inventory:
+  plugin: NetBoxInventory2
+  options:
+    nb_url: "{{ lookup('env', 'NB_URL') }}"
+    nb_token: "{{ lookup('env', 'NB_TOKEN') }}"
+    ssl_verify: False
+    flatten_custom_fields: False

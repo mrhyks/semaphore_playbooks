@@ -1,0 +1,4 @@
+mikrotik_routeros:
+  update_cmd: /system package update install
+router:
+  some_field: N/A
