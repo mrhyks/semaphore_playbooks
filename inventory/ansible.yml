@@ -1,11 +1,42 @@
----
 all:
   children:
+    ap:
+      hosts:
+        CAP-lite:
+          ansible_host: 192.168.2.2
+    cisco:
+      hosts:
+        ME3600X:
+          ansible_host: 172.16.0.10
+      vars:
+        update_cmd: cisco update cmd
+    juniper:
+      hosts:
+        SRX345:
+          ansible_host: 172.16.0.11
+      vars:
+        update_cmd: TBD3
     linux:
       hosts:
         Oracle-Cloud:
           ansible_host: 130.61.249.36
-        kiosk:
-          ansible_host: 192.168.2.24
-        zabbix:
-          ansible_host: 192.168.100.6
+      vars:
+        update_cmd: sudo apt update && sudo apt upgrade -y
+    mikrotik_routeros:
+      hosts:
+        VBIT-PE1:
+          ansible_host: 192.168.2.1
+      vars:
+        update_cmd: /system package update install
+    router:
+      hosts:
+        VBIT-PE1:
+          ansible_host: 192.168.2.1
+    server:
+      hosts:
+        Oracle-Cloud:
+          ansible_host: 130.61.249.36
+    switch:
+      hosts:
+        ME3600X:
+          ansible_host: 172.16.0.10

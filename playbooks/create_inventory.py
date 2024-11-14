@@ -21,7 +21,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     hosts: dict = {}
     groups: dict = {}
 
-    ansible: dict = {}
+    ansible: dict = {"all": {"children": {}}}
 
     for name, host in nr.inventory.hosts.items():
 
@@ -70,10 +70,10 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
 
         for group in device_groups:
             if group not in ansible:
-                ansible[group] = {"hosts": {}}
-            ansible[group]["hosts"][host.name]={'ansible_host':  host.data['primary_ip4']['address'].split('/')[0] if host.data['primary_ip4'] else None}
+                ansible["all"]["children"][group] = {"hosts": {}}
+            ansible["all"]["children"][group]["hosts"][host.name]={'ansible_host':  host.data['primary_ip4']['address'].split('/')[0] if host.data['primary_ip4'] else None}
             
-        ansible[host.data["platform"]["slug"]]["vars"] = {"update_cmd": host.data["platform"]["custom_fields"]["update_cmd"]}
+        ansible["all"]["children"][host.data["platform"]["slug"]]["vars"] = {"update_cmd": host.data["platform"]["custom_fields"]["update_cmd"]}
 
     return hosts, groups, ansible
 
