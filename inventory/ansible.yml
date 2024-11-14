@@ -12,31 +12,67 @@ all:
         update_cmd: cisco update cmd
     juniper:
       hosts:
+        ACX2200:
+          ansible_host: 172.16.0.13
+        ACX710:
+          ansible_host: null
+        EX3400:
+          ansible_host: null
+        EX3400-2:
+          ansible_host: 172.16.0.12
+        MX204:
+          ansible_host: null
         SRX345:
           ansible_host: 172.16.0.11
       vars:
         update_cmd: TBD3
     linux:
       hosts:
+        Kiosk:
+          ansible_host: 192.168.2.24
         Oracle-Cloud:
           ansible_host: 130.61.249.36
+        Zabbix:
+          ansible_host: 192.168.100.6
       vars:
         update_cmd: sudo apt update && sudo apt upgrade -y
     mikrotik_routeros:
       hosts:
+        CAP-lite:
+          ansible_host: 192.168.2.2
+        HEX:
+          ansible_host: 192.168.100.1
         VBIT-PE1:
           ansible_host: 192.168.2.1
       vars:
         update_cmd: /system package update install
     router:
       hosts:
+        ACX2200:
+          ansible_host: 172.16.0.13
+        ACX710:
+          ansible_host: null
+        EX3400-2:
+          ansible_host: 172.16.0.12
+        HEX:
+          ansible_host: 192.168.100.1
+        MX204:
+          ansible_host: null
+        SRX345:
+          ansible_host: 172.16.0.11
         VBIT-PE1:
           ansible_host: 192.168.2.1
     server:
       hosts:
+        Kiosk:
+          ansible_host: 192.168.2.24
         Oracle-Cloud:
           ansible_host: 130.61.249.36
+        Zabbix:
+          ansible_host: 192.168.100.6
     switch:
       hosts:
+        EX3400:
+          ansible_host: null
         ME3600X:
           ansible_host: 172.16.0.10

@@ -69,7 +69,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
         hosts[host.name] = host_dict
 
         for group in device_groups:
-            if group not in ansible:
+            if group not in ansible["all"]["children"]:
                 ansible["all"]["children"][group] = {"hosts": {}}
             ansible["all"]["children"][group]["hosts"][host.name]={'ansible_host':  host.data['primary_ip4']['address'].split('/')[0] if host.data['primary_ip4'] else None}
             
