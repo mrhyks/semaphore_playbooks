@@ -1,12 +1,13 @@
 from nornir import InitNornir
 from nornir.core import Nornir
 import yaml
+import os
 
 
 def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     """
     Convert Nornir inventory to a list of host dictionaries and group dictionaries.
-    
+
     Args:
         nr (Nornir): The Nornir object containing the inventory.
     Returns:
@@ -14,7 +15,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
             - The first dictionary contains hosts for nornir.
             - The second dictionary contains groups for nornir.
             - The third dictionary contains hosts and groups for ansible.
-            
+
     The function processes the Nornir inventory and extracts relevant information about hosts,
     platforms, and device roles. It creates groups for platforms and device roles if they do not
     already exist. Each host dictionary includes the hostname, associated groups, tags, and site
@@ -29,9 +30,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     for name, host in nr.inventory.hosts.items():
         device_groups = []
         tags = []
-        
-        
-        
+
         ### Create groups for platforms and device roles if they don't exist already.
 
         try:
@@ -50,8 +49,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
                 groups[host.data["role"]["slug"]] = {"some_field": "N/A"}
         except KeyError:
             continue
-        
-        
+
         ### Extract site, device groups, and tags from host data.
         for group in host.groups:
             if "site" in group.name:
@@ -79,31 +77,66 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
         for group in device_groups:
             if group not in ansible["all"]["children"]:
                 ansible["all"]["children"][group] = {"hosts": {}}
-            ansible["all"]["children"][group]["hosts"][host.name]={'ansible_host':  host.data['primary_ip4']['address'].split('/')[0] if host.data['primary_ip4'] else None}
-            
+            ansible["all"]["children"][group]["hosts"][host.name] = {
+                "ansible_host": (
+                    host.data["primary_ip4"]["address"].split("/")[0]
+                    if host.data["primary_ip4"]
+                    else None
+                )
+            }
+
             for inner_group in device_groups:
                 if inner_group != group:
-                    if inner_group not in ansible["all"]["children"][group]["hosts"][host.name]:
-                        ansible["all"]["children"][group]["hosts"][host.name]["groups"] = []
-                    ansible["all"]["children"][group]["hosts"][host.name]["groups"].append(inner_group)
-                        
-        ansible["all"]["children"][host.data["platform"]["slug"]]["vars"] = {"update_cmd": host.data["platform"]["custom_fields"]["update_cmd"]}
+                    if (
+                        inner_group
+                        not in ansible["all"]["children"][group]["hosts"][host.name]
+                    ):
+                        ansible["all"]["children"][group]["hosts"][host.name][
+                            "groups"
+                        ] = []
+                    ansible["all"]["children"][group]["hosts"][host.name][
+                        "groups"
+                    ].append(inner_group)
+
+        ansible["all"]["children"][host.data["platform"]["slug"]]["vars"] = {
+            "update_cmd": host.data["platform"]["custom_fields"]["update_cmd"]
+        }
 
     return hosts, groups, ansible
 
 
 def main() -> None:
 
-    nr = InitNornir(config_file="inventory/nb_inventory.yml")
-
+    nb_url = os.getenv("NB_URL")
+    nb_token = os.getenv("NB_TOKEN")
+    if not nb_url or not nb_token:
+        raise ValueError("NetBox URL and token must be set as environment variables")
+    
+    nr = InitNornir(
+        inventory={
+            "plugin": "NetBoxInventory2",
+            "options": {
+                "nb_url": nb_url,
+                "nb_token": nb_token,
+                "ssl_verify": False,
+                "flatten_custom_fields": True,
+            },
+        }
+    )
+    
     hosts, groups, ansible = convert_to_hosts_dict(nr)
-    with open("~/semaphore_playbooks/inventory/hosts.yml", "w") as f:
+    
+    inventory_dir = os.path.expanduser("~/semaphore_playbooks/inventory")
+    if not os.path.exists(inventory_dir):
+        os.makedirs(inventory_dir)
+        
+    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/hosts.yml", "w") as f:
         yaml.dump(hosts, f)
 
-    with open("~/semaphore_playbooks/inventory/groups.yml", "w") as f:
+    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/groups.yml", "w") as f:
         yaml.dump(groups, f)
 
-    with open("~/semaphore_playbooks/inventory/ansible.yml", "w") as f:
+    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/ansible.yml", "w") as f:
         f.write("---\n")
         yaml.dump(ansible, f)
 
