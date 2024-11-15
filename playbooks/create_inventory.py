@@ -25,7 +25,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     ### Initialize dictionaries to store hosts, groups, and ansible inventory.
     hosts: dict = {}
     groups: dict = {}
-    ansible: dict = {"all": {"children": {"vars_files": ["vault.yml"]}}}
+    ansible: dict = {"all": {"children": {}}}
 
     for name, host in nr.inventory.hosts.items():
         device_groups = []
@@ -98,9 +98,11 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
                         "groups"
                     ].append(inner_group)
 
-        ansible["all"]["children"][host.data["platform"]["slug"]]["vars"] = {
-            "update_cmd": host.data["platform"]["custom_fields"]["update_cmd"]
-        }
+        ansible["all"]["children"][host.data["platform"]["slug"]]["vars"] = {}
+        for custom_field in host.data["platform"]["custom_fields"]:
+            ansible["all"]["children"][host.data["platform"]["slug"]]["vars"][
+                custom_field
+            ] = host.data["platform"]["custom_fields"][custom_field]
 
     return hosts, groups, ansible
 
@@ -111,7 +113,7 @@ def main() -> None:
     nb_token = os.getenv("NB_TOKEN")
     if not nb_url or not nb_token:
         raise ValueError("NetBox URL and token must be set as environment variables")
-    
+
     nr = InitNornir(
         inventory={
             "plugin": "NetBoxInventory2",
@@ -123,14 +125,16 @@ def main() -> None:
             },
         }
     )
-    
+
     hosts, groups, ansible = convert_to_hosts_dict(nr)
-    
-    inventory_dir = os.path.expanduser(f"{os.getenv('HOME')}/semaphore_playbooks/inventory")
+
+    inventory_dir = os.path.expanduser(
+        f"{os.getenv('HOME')}/semaphore_playbooks/inventory"
+    )
     print(inventory_dir)
     if not os.path.exists(inventory_dir):
         os.makedirs(inventory_dir)
-        
+
     with open(f"{inventory_dir}/hosts.yml", "w") as f:
         yaml.dump(hosts, f)
 
