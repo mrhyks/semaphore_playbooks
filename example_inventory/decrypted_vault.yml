@@ -1,0 +1,6 @@
+---
+ansible_user: <your_username>
+ansible_password: <your_password>
+ansible_become: yes
+ansible_become_method: sudo
+ansible_sudo_pass: <your_sudo_password>
