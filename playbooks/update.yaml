@@ -1,6 +1,8 @@
 ---
-- hosts: linux
+- name: Update all packages on linus servers
+  hosts: linux
   become: yes
+  gather_facts: no
   vars_files:
   - ../vaults/main.yml
   tasks: 
@@ -10,3 +12,68 @@
     - name: Upgrade all packages 
       apt: 
         upgrade: dist
+
+- name: Update all packages on Mikrotik routers
+  hosts: mikrotik_routeros
+  become: no
+  gather_facts: no
+  vars_files:
+  - ../vaults/main.yml
+  tasks:
+
+# Update RouterOS version.  Mikrotik update/install command automatically reboots the router
+  - name: Check for RouterOS updates
+    community.routeros.command:
+      commands:
+        - /system package update check-for-updates
+    register: system_update_print
+
+  - name: Update RouterOS version
+    community.routeros.command:
+      commands:
+        - /system package update install
+    when: system_update_print is not search('System is already up to date')
+
+# Check if firmware needs an upgrade, upgrade and reboot.
+  - name: Sleeping for 120 seconds.  Giving time for routers to reboot.
+    ansible.builtin.wait_for:
+      timeout: 120
+    delegate_to: localhost
+    when: system_update_print is not search('System is already up to date')
+      
+  - name: Check Current firmware
+    community.routeros.command:
+      commands:
+        - ':put [/system routerboard get current-firmware]'
+    register: firmware_current
+
+  - name: Check Upgrade firmware 
+    community.routeros.command:
+      commands:
+        - ':put [/system routerboard get upgrade-firmware]'
+    register: firmware_upgrade
+
+  - name: Upgrade firmware
+    community.routeros.command:
+      commands:
+        - ':execute script="/system routerboard upgrade"'
+    when: firmware_current != firmware_upgrade
+
+  - name: Wait for firmware upgrade and then reboot
+    community.routeros.command:
+      commands:
+        - /system routerboard print
+    register: Reboot_Status
+    until: "Reboot_Status is search(\"please reboot\")"
+    notify:
+      - Reboot Mikrotik
+    retries: 3
+    delay: 15
+    when: firmware_current != firmware_upgrade
+
+  handlers:
+    - name: Reboot Mikrotik
+      community.routeros.command:
+        commands:
+          - ':execute script="/system reboot"'
+      ignore_errors: yes

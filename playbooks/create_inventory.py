@@ -6,25 +6,32 @@ import yaml
 def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     """
     Convert Nornir inventory to a list of host dictionaries and group dictionaries.
+    
     Args:
         nr (Nornir): The Nornir object containing the inventory.
     Returns:
-        tuple[list[dict], list[dict]]: A tuple containing two lists:
-            - The first list contains dictionaries representing hosts.
-            - The second list contains dictionaries representing groups for platforms and device roles.
+        tuple[dict, dict, dict]::
+            - The first dictionary contains hosts for nornir.
+            - The second dictionary contains groups for nornir.
+            - The third dictionary contains hosts and groups for ansible.
+            
     The function processes the Nornir inventory and extracts relevant information about hosts,
     platforms, and device roles. It creates groups for platforms and device roles if they do not
     already exist. Each host dictionary includes the hostname, associated groups, tags, and site
     information if available.
     """
 
+    ### Initialize dictionaries to store hosts, groups, and ansible inventory.
     hosts: dict = {}
     groups: dict = {}
-
     ansible: dict = {"all": {"children": {}}}
 
     for name, host in nr.inventory.hosts.items():
-
+        device_groups = []
+        tags = []
+        
+        
+        
         ### Create groups for platforms and device roles if they don't exist already.
 
         try:
@@ -41,17 +48,17 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
                     break
             else:
                 groups[host.data["role"]["slug"]] = {"some_field": "N/A"}
-        except:
+        except KeyError:
             continue
-
-        device_groups = []
+        
+        
+        ### Extract site, device groups, and tags from host data.
         for group in host.groups:
             if "site" in group.name:
                 site = group.name.split("__")[1]
             elif "device_role" in group.name or "platform" in group.name:
                 device_groups.append(group.name.split("__")[1])
 
-        tags = []
         for tag in host.data["tags"]:
             tags.append(tag["name"])
 
@@ -68,6 +75,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
 
         hosts[host.name] = host_dict
 
+        ### And finally, create nornir and ansible inventory.
         for group in device_groups:
             if group not in ansible["all"]["children"]:
                 ansible["all"]["children"][group] = {"hosts": {}}
