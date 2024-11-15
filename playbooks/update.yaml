@@ -4,7 +4,7 @@
   become: yes
   gather_facts: no
   vars_files:
-  - ../vaults/main.yml
+  - ../inventory/vault.yml
   tasks: 
     - name: Update apt package list 
       apt: 
@@ -18,7 +18,7 @@
   become: no
   gather_facts: no
   vars_files:
-  - ../vaults/main.yml
+  - ../inventory/vault.yml
   tasks:
 
 # Update RouterOS version.  Mikrotik update/install command automatically reboots the router
