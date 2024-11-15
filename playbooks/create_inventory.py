@@ -25,7 +25,7 @@ def convert_to_hosts_dict(nr: Nornir) -> tuple[dict, dict, dict]:
     ### Initialize dictionaries to store hosts, groups, and ansible inventory.
     hosts: dict = {}
     groups: dict = {}
-    ansible: dict = {"all": {"children": {}}}
+    ansible: dict = {"all": {"children": {"vars_files": {["vault.yml"]}}}}
 
     for name, host in nr.inventory.hosts.items():
         device_groups = []

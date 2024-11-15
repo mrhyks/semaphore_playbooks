@@ -16,3 +16,5 @@ all:
           ansible_host: 192.168.100.1
           groups:
           - mikrotik_routeros
+    vars_files:
+    - vault.yml
