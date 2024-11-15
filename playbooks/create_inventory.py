@@ -126,17 +126,18 @@ def main() -> None:
     
     hosts, groups, ansible = convert_to_hosts_dict(nr)
     
-    inventory_dir = os.path.expanduser("~/semaphore_playbooks/inventory")
+    inventory_dir = os.path.expanduser(f"{os.getenv('HOME')}/semaphore_playbooks/inventory")
+    print(inventory_dir)
     if not os.path.exists(inventory_dir):
         os.makedirs(inventory_dir)
         
-    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/hosts.yml", "w") as f:
+    with open(f"{inventory_dir}/hosts.yml", "w") as f:
         yaml.dump(hosts, f)
 
-    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/groups.yml", "w") as f:
+    with open(f"{inventory_dir}/groups.yml", "w") as f:
         yaml.dump(groups, f)
 
-    with open(f"{os.getenv('HOME')}/semaphore_playbooks/inventory/ansible.yml", "w") as f:
+    with open(f"{inventory_dir}/ansible.yml", "w") as f:
         f.write("---\n")
         yaml.dump(ansible, f)
 
